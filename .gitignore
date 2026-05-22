@@ -1,0 +1,26 @@
+# Gradle
+.gradle/
+.gradle-temp/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# H2 Database
+*.db
+
+# jqwik
+.jqwik-database
+
+# Kiro specs (development artifacts)
+.kiro/
+
+# Environment
+.env
