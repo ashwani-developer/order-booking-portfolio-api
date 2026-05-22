@@ -2,7 +2,21 @@
 
 A production-grade stock trading desk backend built with Spring Boot 3.2 and Java 17+. Supports order lifecycle management, portfolio tracking with sector grouping, and sector overlap analysis against benchmark baskets.
 
+## System Requirements
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| Java JDK | 17+ | Temurin/Corretto/Oracle — any OpenJDK 17 distribution works |
+| Gradle | 8.5+ | Included via wrapper (`gradlew`) — no manual install needed |
+| Docker | 20.10+ | Optional — for containerized deployment |
+| Docker Compose | 2.0+ | Optional — for one-command startup |
+| JMeter | 5.6+ | Optional — for load testing |
+
+**No database installation required** — the app uses H2 in-memory database for development. For production, PostgreSQL 15+ is recommended.
+
 ## How to Run
+
+### Option 1: Gradle (Recommended for Development)
 
 ```bash
 # Run with dev profile (H2 in-memory database)
@@ -13,9 +27,63 @@ A production-grade stock trading desk backend built with Spring Boot 3.2 and Jav
 
 # Build JAR
 ./gradlew build
+
+# Run the built JAR directly
+java -jar build/libs/order-booking-portfolio-api-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+```
+
+### Option 2: Docker (Recommended for Quick Demo)
+
+```bash
+# Build and run with Docker Compose (one command)
+docker-compose up --build
+
+# Or build the image manually
+docker build -t order-booking-api .
+docker run -p 8080:8080 -e SPRING_PROFILES_ACTIVE=dev order-booking-api
+
+# Stop
+docker-compose down
+```
+
+### Option 3: Docker with PostgreSQL (Production-like)
+
+Uncomment the `postgres` service in `docker-compose.yml`, then:
+
+```bash
+docker-compose up --build
 ```
 
 The application starts on `http://localhost:8080`. The H2 console is available at `http://localhost:8080/h2-console` (dev profile only).
+
+## Load Testing with JMeter
+
+A JMeter test plan is included at `jmeter/order-booking-api-test.jmx`.
+
+### Running JMeter Tests
+
+```bash
+# GUI mode (for exploring/debugging)
+jmeter -t jmeter/order-booking-api-test.jmx
+
+# CLI mode (for actual load testing — no GUI overhead)
+jmeter -n -t jmeter/order-booking-api-test.jmx -l jmeter/results/results.jtl -e -o jmeter/results/report/
+```
+
+### What the Test Plan Covers
+
+| Thread Group | Purpose | Config |
+|--------------|---------|--------|
+| Sequential API Flow | Tests all 6 endpoints in order (add holdings → place order → fill → cancel → overlap) | 1 thread, 1 loop |
+| Concurrent Load Test | Simulates 20 traders placing orders simultaneously | 20 threads, 5s ramp-up, 10 loops each |
+
+### Interpreting Results
+
+After running in CLI mode, open `jmeter/results/report/index.html` in a browser for:
+- Response time percentiles (p50, p95, p99)
+- Throughput (requests/sec)
+- Error rate
+- Response time over time graphs
 
 ## API Endpoints
 

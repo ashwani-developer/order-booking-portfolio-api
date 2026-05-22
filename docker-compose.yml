@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # Optional: PostgreSQL for production-like testing
+  # Uncomment below and use SPRING_PROFILES_ACTIVE=prod
+  # postgres:
+  #   image: postgres:15-alpine
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_DB: trading
+  #     POSTGRES_USER: trading
+  #     POSTGRES_PASSWORD: trading123
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+
+# volumes:
+#   postgres_data:
